@@ -27,8 +27,8 @@ public class OrderService {
 	}
 
 	// --- 2. 受注一覧の取得 ---
-	public List<OrderDto> findAllOrder(){
-		return orderMapper.findAllOrder();
+	public List<OrderDto> findAllOrder(Integer status){
+		return orderMapper.findAllOrder(status);
 	}
 
 	// --- 3. 受注仮登録（在庫減算を含まない） ---
@@ -59,12 +59,12 @@ public class OrderService {
 		orderMapper.deleteOrder(order.getId());
 	}
 
-	// ---5.年別月別受注伝票の取得
-	public List<OrderDto> findOrderByMonth(Integer year, Integer month){
+	// ---5.受注伝票のフィルター
+	public List<OrderDto> filterOrders(Integer year, Integer month, Integer status){
 		if(month == 0) {
-			return this.findAllOrder();
+			return this.findAllOrder(status);
 		}
-		return orderMapper.findOrderByYearAndMonth(year, month);
+		return orderMapper.filterOrders(year, month, status);
 	}
 
 	//	---6.売掛登録（在庫減算を含む一連の業務）
@@ -81,7 +81,5 @@ public class OrderService {
 		//在庫増減
 		inventoryManagementService.reduceStock(order.getProductId(), order.getQuantity());
 	}
-	
-	// ---7.本登録済みの受注伝票の取得 
-	
+		
 }

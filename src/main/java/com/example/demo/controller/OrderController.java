@@ -55,16 +55,20 @@ public class OrderController {
 	
 	//受注伝票の全件検索
 	@GetMapping("/order/list")
-	public String listOrder(Model model) {
-		model.addAttribute("orderList", orderService.findAllOrder());
-		return "orderList";
+	public String listOrder(@RequestParam(value = "onlyDraft", defaultValue = "false") boolean onlyDraft, Model model) {
+	    Integer status = onlyDraft ? 0 : null;
+	    model.addAttribute("orderList", orderService.findAllOrder(status));
+	    return "orderList";
 	}
 	
 	@GetMapping("/order/list/filter")
 	@ResponseBody // 重要：HTMLではなくJSONを返す
-	public List<OrderDto> filterOrders(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
-	    if (month == 0) return orderService.findAllOrder();
-	    return orderService.findOrderByMonth(year, month); // 月ごとの検索ロジックをServiceに追加してください
+	public List<OrderDto> filterOrders(@RequestParam("year") Integer year,
+										@RequestParam("month") Integer month,
+										@RequestParam(value = "onlyDraft", defaultValue = "false") boolean onlyDraft) {
+		Integer status = onlyDraft ? 0 : null;
+		if (month == 0) return orderService.findAllOrder(status);
+	    return orderService.filterOrders(year, month, status); // 月ごとの検索ロジックをServiceに追加してください
 	}
 	
 	//受注伝票の削除
@@ -80,6 +84,5 @@ public class OrderController {
 		orderService.registerOrder(order.getId());
 		return "redirect:/order/list";
 	}
-	
-	//本登録済みの受注伝票の取得
+
 }

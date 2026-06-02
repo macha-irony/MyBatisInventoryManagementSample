@@ -32,46 +32,38 @@ LEFT JOIN products p
 ON		 o.product_id = p.id
 LEFT JOIN categories c
 ON		p.category_id = c.id
-WHERE
-			o.status = 0
+<where>
+    <if test="status != null">
+		o.status = #{status}
+    </if>
+</where>
 ORDER BY o.order_date ASC
 </select>
 
-<!--月別受注伝票の取得-->
-<select id="findOrderByYearAndMonth" resultType="com.example.demo.dto.OrderDto">
-SELECT		 o.id as id
-			,c.name as categoryName
-			,p.name as productName
-			,p.price as price
-			,o.quantity as quantity
-			,o.order_date as orderDate
-			,o.status as status
-FROM			 orders o
-LEFT JOIN 	products p
-ON		 	o.product_id = p.id
-LEFT JOIN 	categories c
-ON			p.category_id = c.id
-WHERE
-			o.status = 0
-AND EXTRACT
-			(YEAR FROM o.order_date) = #{year}
-AND EXTRACT
-			(MONTH FROM o.order_date) = #{month}
-ORDER BY 	o.order_date ASC
+<!--受注伝票のフィルター設定-->
+<select id="filterOrders" resultType="com.example.demo.dto.OrderDto">
+    SELECT 
+        o.id as id,
+        c.name as categoryName,
+        p.name as productName,
+        p.price as price,
+        o.quantity as quantity,
+        o.order_date as orderDate,
+        o.status as status
+    FROM orders o
+    LEFT JOIN products p ON o.product_id = p.id
+    LEFT JOIN categories c ON p.category_id = c.id
+    WHERE EXTRACT(YEAR FROM o.order_date) = #{year}
+    AND EXTRACT(MONTH FROM o.order_date) = #{month}
+    <if test="status != null">
+        AND o.status = #{status}
+    </if>
 </select>
-
 <!--受注伝票のID検索-->
 <select id="findByOrderId" resultType="com.example.demo.domain.Order">
 SELECT *
 FROM orders
 WHERE id = #{id}
-</select>
-
-<!--仮登録の受注伝票の取得-->
-<select id="findTempOrder" resultType="com.example.demo.domain.Order">
-SELECT *
-FROM orders
-WHERE status = 0
 </select>
 
 <!--買掛登録-->
