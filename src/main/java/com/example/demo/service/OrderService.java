@@ -82,6 +82,6 @@ public class OrderService {
 		inventoryManagementService.reduceStock(order.getProductId(), order.getQuantity());
 	}
 	
-	// ---7.本登録済みの受注伝票の取得   
+	// ---7.本登録済みの受注伝票の取得 
 	
 }
