@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品発注</title>
+</head>
+<body>
+    <h2>商品発注入力</h2>
+    
+    <form th:action="@{/purchase/insertPurchase}" th:object="${purchaseForm}" method="post">
+        <table border="1">
+            <tr>
+                <th>商品を選択</th>
+                <td>
+                    <select th:field="*{productId}" required>
+                        <option value="">選択してください</option>
+                        <option th:each="product : ${productList}" 
+                                th:value="${product.id}" 
+                                th:text="${product.name}"></option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>発注数</th>
+                <td>
+                    <input type="number" th:field="*{quantity}" min="1" required>
+                </td>
+            </tr>
+        </table>
+        <br>
+        <button type="submit">発注する</button>
+    </form>
+	<br>
+	    <a th:href="@{/purchase/list}">すべての発注伝票を表示する</a>
+    <br>
+    <a th:href="@{/}">メニューへ戻る</a>
+</body>
+</html>

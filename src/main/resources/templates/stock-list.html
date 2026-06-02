@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>入出庫管理一覧</title>
+    <style>
+        table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+        th { background-color: #f8f9fa; }
+        .btn-link { display: inline-block; padding: 5px 10px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<h1 style="text-align: center;">入出庫管理：商品一覧</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>商品名</th>
+            <th>現在の在庫</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="product : ${products}">
+            <td th:text="${product.id}">1</td>
+            <td th:text="${product.name}">商品名</td>
+            <td th:text="${product.stockQuantity}">0</td>
+            <td>
+                <a th:href="@{/products/{id}(id=${product.id})}" class="btn-link">入出庫する</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div style="text-align: center;">
+    <a href="/">メニューに戻る</a>
+</div>
+
+</body>
+</html>

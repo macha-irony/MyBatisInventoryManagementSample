@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>発注一覧</title>
+</head>
+
+<body>
+	<h2>発注一覧</h2>
+
+	<select id="purchaseYearSelect">
+		<option value="2025">2025年</option>
+		<option value="2026" selected>2026年</option>
+	</select>
+	<select id="purchaseMonthSelect">
+		<option value="0">全期間</option>
+		<option value="4">4月</option>
+		<option value="5">5月</option>
+		<option value="6">6月</option>
+	</select>
+
+	<table border="1" style="width: 100%; border-collapse: collapse;">
+		<thead>
+			<tr style="background-color: #f2f2f2;"7>
+				<th>発注日時</th>
+				<th>発注伝票ID</th>
+				<th>商品名</th>
+				<th>カテゴリ</th>
+				<th>単価</th>
+				<th>数量</th>
+				<th>小計</th>
+				<th>削除</th>
+			</tr>
+		</thead>
+		<tbody id="purchaseTableBody">
+			<tr th:each="purchase : ${purchaseList}">
+				<td th:text="${#temporals.format(purchase.purchaseDate, 'yyyy/MM/dd HH:mm')}"></td>
+				<td th:text="${purchase.id}"></td>
+				<td th:text="${purchase.productName}"></td>
+				<td th:text="${purchase.categoryName}"></td>
+				<td th:text="${#numbers.formatInteger(purchase.price, 3, 'COMMA')} + '円'"></td>
+				<td th:text="${purchase.quantity}"></td>
+				<td th:text="${#numbers.formatInteger(purchase.price * purchase.quantity, 3, 'COMMA')} + '円'"></td>
+				<td>
+					<form th:action="@{/purchase/list/delete}" method="post" onsubmit="return confirm('削除しますか？');">
+						<input type="hidden" name="id" th:value="${purchase.id}">
+						<button type="submit">削除</button>
+					</form>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<br>
+	<a th:href="@{/purchase}">新規発注登録に戻る</a>
+	<script>
+		// プルダウン変更時に非同期通信を行う関数
+		function updateTable() {
+			const year = document.getElementById('purchaseYearSelect').value;
+			const month = document.getElementById('purchaseMonthSelect').value;
+
+			fetch(`/purchase/list/filter?year=${year}&month=${month}`)
+				.then(response => response.json())
+				.then(data => {
+					console.log(data);
+					const tbody = document.getElementById('purchaseTableBody');
+					tbody.innerHTML = ''; // 中身をリセット
+
+					data.forEach(purchase => {
+						// 日付フォーマット用の簡易処理（必要に応じて調整）
+						const date = new Date(purchase.purchaseDate);
+						const dateStr = date.toLocaleString('ja-JP', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'});
+
+						const row = `<tr>
+		                            <td>${dateStr}</td>
+		                            <td>${purchase.id}</td>
+		                            <td>${purchase.productName}</td>
+		                            <td>${purchase.categoryName}</td>
+		                            <td>${purchase.price.toLocaleString()}円</td>
+		                            <td>${purchase.quantity}</td>
+		                            <td>${(purchase.price * purchase.quantity).toLocaleString()}円</td>
+		                            <td>
+		                                <form action="/purchase/list/delete" method="post" onsubmit="return confirm('削除しますか？');">
+		                                    <input type="hidden" name="id" value="${purchase.id}">
+		                                    <button type="submit">削除</button>
+		                                </form>
+		                            </td>
+		                        </tr>`;
+						tbody.insertAdjacentHTML('beforeend', row);
+					});
+				});
+		}
+
+		// イベント設定
+		document.getElementById('purchaseYearSelect').addEventListener('change', updateTable);
+		document.getElementById('purchaseMonthSelect').addEventListener('change', updateTable);
+	</script>
+
+</body>
+
+</html>

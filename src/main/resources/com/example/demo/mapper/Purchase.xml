@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-->namespace="メソッドが記述されているpath名"<-->
+<mapper namespace="com.example.demo.mapper.PurchaseMapper">
+
+<!--受注伝票の作成-->
+<insert id="insertPurchase" useGeneratedKeys="true" keyProperty="id">
+INSERT INTO purchases(product_id, quantity, purchase_date)
+VALUES(#{productId}, #{quantity}, #{orderDate})
+</insert>
+
+<!--発注伝票の全件検索-->
+<select id="findAllPurchase" resultType="com.example.demo.dto.PurchaseDto">
+SELECT		pc.id as id
+			,cg.name as categoryName
+			,pd.name as productName
+			,pd.price as price
+			,pc.quantity as quantity
+			,pc.purchase_date as purchaseDate
+FROM			purchases pc
+LEFT JOIN 	products pd
+ON			pc.product_id = pd.id
+LEFT JOIN	categories cg
+ON			pd.category_id = cg.id
+</select>
+
+<!--発注伝票のID検索-->
+<select id="findPurchaseById" resultType="com.example.demo.domain.Purchase">
+SELECT		*
+FROM			purchases
+WHERE		id = #{id}
+</select>
+
+<!--年別月別発注伝票検索-->
+<select id="findPurchaseByYearAndMonth" resultType="com.example.demo.dto.PurchaseDto">
+SELECT		pc.id as id
+			,cg.name as categoryName
+			,pd.name as productName
+			,pd.price as price
+			,pc.quantity as quantity
+			,pc.purchase_date as purchaseDate
+FROM			purchases pc
+LEFT JOIN 	products pd
+ON			pc.product_id = pd.id
+LEFT JOIN	categories cg
+ON			pd.category_id = cg.id
+WHERE
+EXTRACT		(YEAR FROM pc.purchase_date) = #{year}
+AND EXTRACT	(MONTH FROM pc.purchase_date) = #{month}
+ORDER BY		pc.purchase_date ASC
+</select>
+
+<!--発注伝票の削除-->
+<delete id="deletePurchase">
+DELETE FROM	purchases
+WHERE		id = #{id}
+</delete>
+
+</mapper>

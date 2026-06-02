@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>マイページ</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		body {
+			background-color: #f8f9fa;
+		}
+
+		.login-card {
+			max-width: 400px;
+			margin: 80px auto;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<div class="card shadow p-4 mt-5">
+					<h2>マイページ</h2>
+					<ul class="list-group list-group-flush mb-4">
+						<li class="list-group-item">ユーザーID: <strong th:text="${userId}"></strong></li>
+						<li class="list-group-item">権限: <span class="badge bg-primary" th:text="${roles}"></span></li>
+					</ul>
+					<h3>パスワード変更</h3>
+
+					<!--パスワードの更新部分-->
+					<form th:action="@{/profile/updatePassword}" th:object="${passwordForm}" method="post">
+						<div class="mb-3">
+						    <label class="form-label">新しいパスワード:</label>
+						    <input type="password" th:field="*{newPassword}" class="form-control">
+						    <p th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}" class="text-danger small"></p>
+						</div>
+						<button type="submit" class="btn btn-primary w-100">変更する</button>
+					</form>
+					<a th:href="@{/}">メニューに戻る</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>

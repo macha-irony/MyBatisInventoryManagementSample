@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-->namespace="メソッドが記述されているpath名"<-->
+<mapper namespace="com.example.demo.mapper.InventoryManagementMapper">
+<!--全件検索-->
+<select id="findAllProducts" resultType="com.example.demo.domain.Product">
+    SELECT p.id, p.name, p.category_id, p.price, p.created_at, c.name as category_name
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+</select>
+<!--ID検索-->
+<select id="findProductById" resultType="com.example.demo.domain.Product">
+    SELECT p.id, p.name, p.category_id,p.price, p.created_at, c.name as category_name, s.quantity AS stockQuantity
+    FROM products p
+    LEFT JOIN categories c ON p.category_id = c.id
+    LEFT JOIN stocks s ON p.id = s.product_id
+    WHERE p.id = #{id}
+</select>
+<!--新規登録-->
+<insert id="insertProduct">
+    INSERT INTO products(name, category_id, price)
+    VALUES(#{name}, #{categoryId}, #{price})
+</insert>
+<!--更新-->
+<update id="updateStock">
+    UPDATE stocks
+    SET quantity = quantity + #{changeQuantity},
+        updated_at = CURRENT_TIMESTAMP
+    WHERE product_id = #{productId}
+</update>
+<!--在庫情報取得-->
+<select id="findStockQuantityByProductId" resultType="Integer">
+    SELECT quantity FROM stocks WHERE product_id = #{productId}
+</select>
+<!--履歴登録-->
+<insert id="insertHistory">
+    INSERT INTO order_histories(product_id, change_quantity, history_type)
+    VALUES(#{productId}, #{changeQuantity}, #{historyType})
+</insert>
+<!--商品の履歴を取得-->
+<select id="findHistoriesByProductId" resultType="com.example.demo.domain.History">
+    SELECT * FROM order_histories 
+    WHERE product_id = #{productId} 
+    ORDER BY created_at DESC
+</select>
+
+</mapper>

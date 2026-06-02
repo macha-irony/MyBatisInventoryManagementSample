@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>商品詳細・入出庫管理</title>
+    <style>
+        .container { width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .info { margin-bottom: 20px; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .history-table th, .history-table td { border: 1px solid #eee; padding: 8px; text-align: center; }
+        .history-table th { background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 th:text="${product.name}">商品名</h2>
+    <div class="info">
+        <p>カテゴリ: <span th:text="${product.categoryName}">カテゴリ名</span></p>
+        <p>現在の在庫数: <strong th:text="${product.stockQuantity}">0</strong></p>
+<!--			<p>デバッグ表示: <span th:text="${product}"></span></p>    -->
+	</div>
+
+    <hr>
+
+    <h3>入出庫処理</h3>
+    <form th:action="@{/products/stock/update}" method="post">
+        <input type="hidden" name="productId" th:value="${product.id}">
+        
+        <div style="margin-bottom: 10px;">
+            <input type="number" name="changeQuantity" required placeholder="数量を入力">
+            <select name="historyType">
+                <option value="入庫">入庫</option>
+                <option value="出庫">出庫</option>
+            </select>
+            <button type="submit">更新実行</button>
+        </div>
+    </form>
+
+    <hr>
+
+    <h3>入出庫履歴</h3>
+    <table class="history-table">
+        <thead>
+            <tr>
+                <th>タイプ</th>
+                <th>数量</th>
+                <th>日時</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="history : ${product.historyList}">
+                <td th:text="${history.historyType}">入庫</td>
+                <td th:text="${history.changeQuantity}">+5</td>
+                <td th:text="${#temporals.format(history.createdAt, 'yyyy/MM/dd HH:mm')}">2026/05/25</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a href="/products">一覧に戻る</a>
+</div>
+
+</body>
+</html>
