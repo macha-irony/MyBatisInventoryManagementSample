@@ -10,6 +10,7 @@ import com.example.demo.domain.Order;
 import com.example.demo.domain.Product;
 import com.example.demo.dto.OrderDto;
 import com.example.demo.mapper.OrderMapper;
+import com.example.demo.util.SlackNotifier;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,6 +20,7 @@ public class OrderService {
 	private final OrderMapper orderMapper;
 	// 在庫操作の専門家として、在庫サービスを注入する
 	private final InventoryManagementService inventoryManagementService;
+	private final SlackNotifier slackNotifier;
 
 	// --- 1. 画面表示用データの取得 ---
 	public List<Product> getAvailableProducts() {
@@ -89,8 +91,25 @@ public class OrderService {
 	
 	// ---8.仮登録受注伝票の更新
 	@Transactional
-	public void updateDraftOrder(Order order) {
+	public void updateDraftOrder(OrderDto orderDto, String username) {
+		Order order = setOrder(orderDto);
 		orderMapper.updateDraftOrder(order);
+		if(order.getQuantity() >= 100) {
+			// Slackに通知を飛ばす
+			String message = username + "さんが受注番号 " + order.getId() + " を更新しました！\n" + 
+	                "詳細はこちら: http://localhost:8080/order/edit?id=" + order.getId();
+		    slackNotifier.sendNotification(message);
+		}
+	}
+	
+	//orderDtoからorderへの変換処理を共通化
+	private Order setOrder(OrderDto orderDto) {
+		Order order = new Order();
+		order.setId(orderDto.getId());
+		order.setProductId(orderDto.getProductId());
+		order.setQuantity(orderDto.getQuantity());
+		order.setOrderDate(LocalDateTime.now());
+		return order;
 	}
 		
 }

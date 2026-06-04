@@ -10,7 +10,6 @@
     </style>
 </head>
 <body>
-
 <div class="container mt-5">
     <div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
         <h2 class="mb-4">📋 受注登録画面</h2>
@@ -34,14 +33,14 @@
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-success btn-lg">受注を確定する</button>
+                <button type="submit" class="btn btn-primary btn-lg">受注を確定する</button>
             </div>
         </form>
 
         <hr class="my-4">
 
         <div class="d-grid gap-2">
-            <a th:href="@{/order/list}" class="btn btn-outline-primary">すべての受注を確認する</a>
+            <a th:href="@{/order/list}" class="btn btn-outline-secondary">すべての受注を確認する</a>
             <a th:href="@{/}" class="btn btn-outline-secondary">メニューに戻る</a>
         </div>
     </div>

@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderController {
 	private final OrderService orderService;
 	private final InventoryManagementService inventoryManagementService;
+	
 	
 	//受注伝票の表示
 	@GetMapping("/order")
@@ -99,12 +101,8 @@ public class OrderController {
 	//更新処理
 	@PostMapping("/order/update")
 	public String updateOrder(@ModelAttribute("order") OrderDto orderDto) {
-		Order order = new Order();
-		order.setId(orderDto.getId());
-		order.setProductId(orderDto.getProductId());
-		order.setQuantity(orderDto.getQuantity());
-		order.setOrderDate(LocalDateTime.now());
-		orderService.updateDraftOrder(order);
+		String username = SecurityContextHolder.getContext().getAuthentication().getName();
+		orderService.updateDraftOrder(orderDto, username);
 		return "redirect:/order/list";
 	}
 

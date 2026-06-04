@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.domain.Product;
 import com.example.demo.service.InventoryManagementService;
+import com.example.demo.service.WeatherService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor 
 public class InventoryManagementController {
 	private final InventoryManagementService service;
+	private final WeatherService weatherService;
 //	public InventoryManagementController(InventoryManagementService service) {
 //		this.service = service;
 //	}
@@ -30,7 +32,13 @@ public class InventoryManagementController {
 	
 	// アプリのトップページ（http://localhost:8080/）にアクセスした時にメニュー画面を開く
 	@GetMapping("/")
-	public String showMenu() {
+	public String showMenu(Model model) {
+		try {
+            model.addAttribute("weather", weatherService.getCurrentWeather());
+        } catch (Exception e) {
+            // もしAPIでエラーが出てもアプリが落ちないようにガード
+            System.err.println("天気の取得に失敗しました: " + e.getMessage());
+        }
 		// -> src/main/resources/templates/menu.html を呼び出す
 		return "menu";
 	}
