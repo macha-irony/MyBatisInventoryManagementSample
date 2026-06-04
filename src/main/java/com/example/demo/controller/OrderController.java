@@ -84,5 +84,28 @@ public class OrderController {
 		orderService.registerOrder(order.getId());
 		return "redirect:/order/list";
 	}
+	
+	//編集画面の表示
+	@GetMapping("/order/edit")
+	public String showEditForm(@RequestParam("id") Integer orderId, Model model) {
+		OrderDto order = orderService.findByOrderId(orderId);
+		if (order == null) {
+			return "redirect:/order/list"; // 該当する注文がない場合はリストにリダイレクト
+		}
+		model.addAttribute("order", order);
+		model.addAttribute("productList", inventoryManagementService.getAllProducts()); // プルダウン用の商品リストも追加
+		return "order-edit"; // templates/order-edit.html を表示
+	}
+	//更新処理
+	@PostMapping("/order/update")
+	public String updateOrder(@ModelAttribute("order") OrderDto orderDto) {
+		Order order = new Order();
+		order.setId(orderDto.getId());
+		order.setProductId(orderDto.getProductId());
+		order.setQuantity(orderDto.getQuantity());
+		order.setOrderDate(LocalDateTime.now());
+		orderService.updateDraftOrder(order);
+		return "redirect:/order/list";
+	}
 
 }

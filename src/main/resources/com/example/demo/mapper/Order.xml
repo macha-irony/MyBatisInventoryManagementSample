@@ -3,81 +3,111 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-->namespace="メソッドが記述されているpath名"<-->
+<!-->namespace="メソッドが記述されているpath名"< -->
 <mapper namespace="com.example.demo.mapper.OrderMapper">
 
-<!--受注伝票の作成-->
-<insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
-INSERT INTO orders(product_id, quantity, order_date)
-VALUES(#{productId}, #{quantity}, #{orderDate})
-</insert>
+	<!--受注伝票の作成 -->
+	<insert id="insertOrder" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO orders(product_id, quantity, order_date)
+		VALUES(#{productId}, #{quantity}, #{orderDate})
+	</insert>
 
-<!--受注伝票の削除-->
-<delete id="deleteOrder">
-DELETE FROM orders
-WHERE id = #{id}
-</delete>
+	<!--受注伝票の削除 -->
+	<delete id="deleteOrder">
+		DELETE FROM orders
+		WHERE id = #{id}
+	</delete>
 
-<!--受注伝票の全件検索-->
-<select id="findAllOrder" resultType="com.example.demo.dto.OrderDto">
-SELECT	 o.id as id
+	<!--受注伝票の全件検索 -->
+	<select id="findAllOrder"
+		resultType="com.example.demo.dto.OrderDto">
+		SELECT o.id as id
 		,c.name as categoryName
 		,p.name as productName
 		,p.price as price
 		,o.quantity as quantity
 		,o.order_date as orderDate
 		,o.status as status
-FROM		 orders o
-LEFT JOIN products p
-ON		 o.product_id = p.id
-LEFT JOIN categories c
-ON		p.category_id = c.id
-<where>
-    <if test="status != null">
-		o.status = #{status}
-    </if>
-</where>
-ORDER BY o.order_date ASC
-</select>
+		FROM orders o
+		LEFT JOIN products p
+		ON o.product_id =
+		p.id
+		LEFT JOIN categories c
+		ON p.category_id = c.id
+		<where>
+			<if test="status != null">
+				o.status = #{status}
+			</if>
+		</where>
+		ORDER BY o.order_date ASC
+	</select>
 
-<!--受注伝票のフィルター設定-->
-<select id="filterOrders" resultType="com.example.demo.dto.OrderDto">
-    SELECT 
-        o.id as id,
-        c.name as categoryName,
-        p.name as productName,
-        p.price as price,
-        o.quantity as quantity,
-        o.order_date as orderDate,
-        o.status as status
-    FROM orders o
-    LEFT JOIN products p ON o.product_id = p.id
-    LEFT JOIN categories c ON p.category_id = c.id
-    WHERE EXTRACT(YEAR FROM o.order_date) = #{year}
-    AND EXTRACT(MONTH FROM o.order_date) = #{month}
-    <if test="status != null">
-        AND o.status = #{status}
-    </if>
-</select>
-<!--受注伝票のID検索-->
-<select id="findByOrderId" resultType="com.example.demo.domain.Order">
-SELECT *
-FROM orders
-WHERE id = #{id}
-</select>
+	<!--受注伝票のフィルター設定 -->
+	<select id="filterOrders"
+		resultType="com.example.demo.dto.OrderDto">
+		SELECT
+		o.id as id,
+		c.name as categoryName,
+		p.name as productName,
+		p.price
+		as price,
+		o.quantity as quantity,
+		o.order_date as orderDate,
+		o.status as
+		status
+		FROM orders o
+		LEFT JOIN products p ON o.product_id = p.id
+		LEFT
+		JOIN categories c ON p.category_id = c.id
+		WHERE EXTRACT(YEAR FROM
+		o.order_date) = #{year}
+		AND EXTRACT(MONTH FROM o.order_date) = #{month}
+		<if test="status != null">
+			AND o.status = #{status}
+		</if>
+	</select>
+	<!--受注伝票のID検索 -->
+	<select id="findByOrderId"
+		resultType="com.example.demo.dto.OrderDto">
+		SELECT
+		o.id as id,
+		c.name as categoryName,
+		p.name as productName,
+		p.price as price,
+		o.quantity as quantity,
+		o.order_date as orderDate,
+		o.status as status,
+		o.product_id as productId 
+		FROM "orders" o
+		LEFT JOIN products p 
+		ON o.product_id = p.id
+		LEFT JOIN categories c 
+		ON p.category_id = c.id
+		WHERE o.id = #{id}
+	</select>
+	
+	<!--仮登録の受注伝票の更新 -->
+	<update id="updateDraftOrder">
+		UPDATE orders
+		SET quantity = #{quantity}
+		    ,order_date = #{orderDate}
+		WHERE id = #{id}
+	</update>
 
-<!--買掛登録-->
-<update id="registerOrder">
-UPDATE orders
-SET status = 1
-WHERE id = #{id}
-</update>
+	<!--買掛登録 -->
+	<update id="registerOrder">
+		UPDATE orders
+		SET status = 1
+		WHERE id = #{id}
+	</update>
 
-<!--買掛登録の受注伝票の取得-->
-<select id="findRegisterdOrder" resultType="com.example.demo.domain.Order">
-SELECT *
-FROM orders
-WHERE status = 1
-</select>
+	<!--買掛登録の受注伝票の取得 -->
+	<select id="findRegisterdOrder"
+		resultType="com.example.demo.domain.Order">
+		SELECT *
+		FROM orders
+		WHERE status = 1
+	</select>
 
 </mapper>

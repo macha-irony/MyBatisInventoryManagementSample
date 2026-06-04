@@ -48,7 +48,7 @@ public class OrderService {
 	@Transactional
 	public void deleteOrder(Integer orderId) {
 		// ①削除対象となる伝票の検索
-		Order order = orderMapper.findByOrderId(orderId);
+		OrderDto order = orderMapper.findByOrderId(orderId);
 		// 念のため存在チェック（NullPointerException対策）
 		if (order == null) {
 			throw new RuntimeException("該当する注文が見つかりません");
@@ -71,7 +71,7 @@ public class OrderService {
 	@Transactional
 	public void registerOrder(Integer orderId) {
 		//登録対象の伝票の取得
-		Order order = orderMapper.findByOrderId(orderId);
+		OrderDto order = orderMapper.findByOrderId(orderId);
 		//存在するかチェック
 		if(order == null) {
 			throw new RuntimeException("該当する注文が見つかりません");
@@ -80,6 +80,17 @@ public class OrderService {
 		orderMapper.registerOrder(orderId);
 		//在庫増減
 		inventoryManagementService.reduceStock(order.getProductId(), order.getQuantity());
+	}
+	
+	// ---7.下書き状態の受注伝票の取得
+	public OrderDto findByOrderId(Integer id) {
+	    return orderMapper.findByOrderId(id);
+	}
+	
+	// ---8.仮登録受注伝票の更新
+	@Transactional
+	public void updateDraftOrder(Order order) {
+		orderMapper.updateDraftOrder(order);
 	}
 		
 }

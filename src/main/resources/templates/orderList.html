@@ -37,14 +37,14 @@
 					</select>
 				</div>
 			</div>
-			
+
 			<div class="col-auto d-flex align-items-center">
-			    <div class="form-check">
-			        <input class="form-check-input" type="checkbox" id="onlyDraftCheck">
-			        <label class="form-check-label" for="onlyDraftCheck">
-			            仮受注伝票のみ表示
-			        </label>
-			    </div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="onlyDraftCheck">
+					<label class="form-check-label" for="onlyDraftCheck">
+						仮受注伝票のみ表示
+					</label>
+				</div>
 			</div>
 
 			<div class="table-responsive">
@@ -60,6 +60,7 @@
 							<th>小計</th>
 							<th>操作</th>
 							<th>売掛登録</th>
+							<th>編集</th>
 						</tr>
 					</thead>
 					<tbody id="orderTableBody">
@@ -73,14 +74,22 @@
 							<td th:text="${#numbers.formatInteger(order.price * order.quantity, 3, 'COMMA')} + '円'">
 							</td>
 							<td>
-								<button type="button" class="btn btn-sm btn-outline-danger"
+								<button th:if="${order.status == 0}" type="button" class="btn btn-sm btn-outline-danger"
 									th:onclick="'sendRequest(\'/order/list/delete\', ' + ${order.id} + ')'">削除</button>
+								<span th:if="${order.status != 0}" class="badge bg-secondary">登録済</span>
 							</td>
 							<td>
 								<button type="button" class="btn btn-sm btn-outline-primary"
 									th:if="${order.status == 0}"
 									th:onclick="'sendRequest(\'/order/list/register\', ' + ${order.id} + ')'">売掛登録</button>
 								<span th:if="${order.status != 0}" class="badge bg-secondary">登録済</span>
+							</td>
+							<td>
+							<a th:if="${order.status == 0}" 
+							   th:href="@{/order/edit(id=${order.id})}" 
+							   class="btn btn-sm btn-outline-primary">編集</a>
+
+							<span th:if="${order.status != 0}" class="badge bg-secondary">登録済</span>
 							</td>
 						</tr>
 					</tbody>
@@ -106,10 +115,10 @@
 			// 表を更新
 			const url = `/order/list/filter?year=${year}&month=${month}&onlyDraft=${onlyDraft}`;
 			fetch(url)
-			    .then(response => {
-			        if (!response.ok) throw new Error('通信エラー');
-			        return response.json();
-			    })
+				.then(response => {
+					if (!response.ok) throw new Error('通信エラー');
+					return response.json();
+				})
 				.then(data => {
 					const tbody = document.getElementById('orderTableBody');
 					tbody.innerHTML = '';
@@ -122,8 +131,12 @@
 						const registerButton = (parseInt(order.status) === 0)
 							? `<button type="button" class="btn btn-sm btn-outline-primary" onclick="sendRequest('/order/list/register', ${order.id})">売掛登録</button>`
 							: '<span class="badge bg-secondary">登録済</span>';
-						const deleteBtn = `<button type="button" class="btn btn-sm btn-outline-danger" onclick="sendRequest('/order/list/delete', ${order.id})">削除</button>`;
-						
+						const deleteBtn = (parseInt(order.status) === 0)
+							? `<button type="button" class="btn btn-sm btn-outline-danger" onclick="sendRequest('/order/list/delete', ${order.id})">削除</button>`
+							: '<span class="badge bg-secondary">登録済</span>';
+						const editButton = (parseInt(order.status) === 0)
+							? `<button type="button" class="btn btn-sm btn-outline-primary" onclick="window.location.href='/order/edit?id=${order.id}'">編集</button>`
+							: '<span class="badge bg-secondary">登録済</span>';
 						const row = `<tr>
 	                        <td>${dateStr}</td>
 	                        <td>${order.id}</td>
@@ -134,6 +147,7 @@
 	                        <td>${(order.price * order.quantity).toLocaleString()}円</td>
 	                        <td>${deleteBtn}</td>
 	                        <td>${registerButton}</td>
+							<td>${editButton}</td>
 	                    </tr>`;
 						tbody.insertAdjacentHTML('beforeend', row);
 					});
