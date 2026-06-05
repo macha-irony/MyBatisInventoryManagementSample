@@ -1,50 +1,147 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>受注登録 - 販売管理システム</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>受注登録 - 販売管理システム</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<style>
+		body {
+			background-color: #f8f9fa;
+		}
+	</style>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
+
 <body>
-<div class="container mt-5">
-    <div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
-        <h2 class="mb-4">📋 受注登録画面</h2>
-        
-        <form th:action="@{/order/insertOrder}" th:object="${orderForm}" method="post"
-              onsubmit="return confirm('受注内容を確定してもよろしいですか？');">
+	<div class="container mt-5">
+		<div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
+			<h2 class="mb-4">📋 受注登録画面</h2>
 
-            <div class="mb-3">
-                <label for="productId" class="form-label">商品名</label>
-                <select th:field="*{productId}" id="productId" class="form-select">
-                    <option value="">-- 選択してください --</option>
-                    <option th:each="product : ${productList}" th:value="${product.id}" th:text="${product.name}"></option>
-                </select>
-                <div th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}" class="text-danger small mt-1"></div>
-            </div>
+			<form th:action="@{/order/insertOrder}" th:object="${orderForm}" method="post"
+				onsubmit="return confirm('受注内容を確定してもよろしいですか？');">
 
-            <div class="mb-4">
-                <label for="quantity" class="form-label">注文数</label>
-                <input type="number" th:field="*{quantity}" id="quantity" class="form-control" min="1" placeholder="数量を入力">
-                <div th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-danger small mt-1"></div>
-            </div>
+				<div class="mb-3">
+					<label for="productId" class="form-label">商品名</label>
+					<select th:field="*{productId}" id="productId" class="form-select">
+						<option value="">-- 選択してください --</option>
+						<option th:each="product : ${productList}" th:value="${product.id}" th:text="${product.name}">
+						</option>
+					</select>
+					<div th:if="${#fields.hasErrors('productId')}" th:errors="*{productId}"
+						class="text-danger small mt-1"></div>
+				</div>
 
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary btn-lg">受注を確定する</button>
-            </div>
-        </form>
+				<div class="mb-4">
+					<label for="quantity" class="form-label">注文数</label>
+					<input type="number" th:field="*{quantity}" id="quantity" class="form-control" min="1"
+						placeholder="数量を入力">
+					<div th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}"
+						class="text-danger small mt-1"></div>
+				</div>
 
-        <hr class="my-4">
+				<hr>
+				<h3>配送先情報</h3>
+				<div class="mb-4">
+					<label>顧客名:</label>
+					<input type="text" th:field="*{customerName}">
+				</div>
+				<div class="mb-4">
+					<label>郵便番号:</label>
+					<input type="text" id="zipCode" th:field="*{zipCode}" placeholder="例: 5300001">
+					<button type="button" class="btn btn-secondary" onclick="searchAddress()">住所検索</button>
+				</div>
+				<div class="mb-4">
+					<label>住所:</label>
+					<input type="text" id="address" th:field="*{address}" style="width: 300px;" placeholder="自動入力"
+						readonly>
+					<input type="text" id="streetAddress" placeholder="番地・建物名を入力">
+				</div>
 
-        <div class="d-grid gap-2">
-            <a th:href="@{/order/list}" class="btn btn-outline-secondary">すべての受注を確認する</a>
-            <a th:href="@{/}" class="btn btn-outline-secondary">メニューに戻る</a>
-        </div>
-    </div>
-</div>
+				<div class="mb-4" id="map" style="height: 300px; width: 100%; margin-top: 10px;"></div>
+
+				<div class="d-grid gap-2">
+					<button type="submit" class="btn btn-primary btn-lg">受注を確定する</button>
+				</div>
+<!--				<a th:href="@{/download/shipping-label(customerName=${orderForm.customerName}, address=${orderForm.address})}" -->
+<!--				   class="btn btn-success">送り状Excelをダウンロード</a>-->
+			</form>
+
+			<hr class="my-4">
+
+			<div class="d-grid gap-2">
+				<a th:href="@{/order/list}" class="btn btn-outline-secondary">すべての受注を確認する</a>
+				<a th:href="@{/}" class="btn btn-outline-secondary">メニューに戻る</a>
+			</div>
+		</div>
+	</div>
+	<script>
+		function searchAddress() {
+			const zipCode = document.getElementById('zipCode').value;
+
+			// Javaのコントローラー経由でAPIの結果を取得
+			fetch('/api/address?zipCode=' + zipCode)
+				.then(response => response.json())
+				.then(data => {
+					if (data.results) {
+						const addr = data.results[0];
+						const fullAddress = addr.address1 + addr.address2 + addr.address3;
+						document.getElementById('address').value = fullAddress;
+
+						// ここで地図情報を取得する関数を呼び出す
+						getCoordinates(fullAddress);
+					} else {
+						alert('住所が見つかりませんでした');
+					}
+				});
+		}
+
+		function getCoordinates() {
+		    // 自動入力された住所 + ユーザーが手入力した番地
+		    const baseAddress = document.getElementById('address').value;
+		    const street = document.getElementById('streetAddress').value;
+		    const fullAddress = baseAddress + street; // ここで連結！
+
+		    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(fullAddress)}&format=json&limit=1`)
+		        .then(response => response.json())
+		        .then(data => {
+		            if (data.length > 0) {
+		                const lat = data[0].lat;
+		                const lon = data[0].lon;
+		                // これで番地レベルの座標が取れる可能性が高まります！
+		                displayMap(lat, lon); 
+		            } else {
+		                alert('その番地までは地図で見つかりませんでした');
+		            }
+		        });
+		}
+
+		let map = null; // 地図のインスタンスを保持する変数
+
+		function displayMap(lat, lon) {
+			// すでに地図が表示されていたら削除する
+			if (map !== null) {
+				map.remove();
+			}
+
+			// 地図を作成 (中心座標とズームレベルを設定)
+			map = L.map('map').setView([lat, lon], 15);
+
+			// 地図のタイル（見た目）を指定 (OpenStreetMapのデータを使用)
+			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '© OpenStreetMap contributors'
+			}).addTo(map);
+
+			// マーカーを追加
+			L.marker([lat, lon]).addTo(map)
+				.bindPopup('配送先住所')
+				.openPopup();
+		}
+
+	</script>
 
 </body>
+
 </html>

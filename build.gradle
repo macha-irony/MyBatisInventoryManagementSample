@@ -38,6 +38,8 @@ dependencies {
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Apache POI の追加
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
 }
 
 tasks.named('test') {

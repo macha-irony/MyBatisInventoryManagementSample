@@ -1,8 +1,11 @@
 package com.example.demo.controller;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.demo.domain.Order;
 import com.example.demo.dto.OrderDto;
 import com.example.demo.form.OrderForm;
+import com.example.demo.service.ExcelService;
 import com.example.demo.service.InventoryManagementService;
 import com.example.demo.service.OrderService;
 
@@ -26,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OrderController {
 	private final OrderService orderService;
+	private final ExcelService excelService;
 	private final InventoryManagementService inventoryManagementService;
 	
 	
@@ -105,5 +110,16 @@ public class OrderController {
 		orderService.updateDraftOrder(orderDto, username);
 		return "redirect:/order/list";
 	}
-
+	//配送ラベルのダウンロード
+	@GetMapping("/order/download/shipping-label")
+	public ResponseEntity<byte[]> download(@RequestParam("id") Integer orderId) throws IOException {
+        byte[] excelData = excelService.createShippingLabel(orderId);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=shipping_label.xlsx");
+        
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(excelData);
+    }
 }

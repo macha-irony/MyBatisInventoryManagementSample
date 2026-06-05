@@ -84,7 +84,7 @@ public class OrderService {
 		inventoryManagementService.reduceStock(order.getProductId(), order.getQuantity());
 	}
 	
-	// ---7.下書き状態の受注伝票の取得
+	// ---7.受注伝票IDから取得
 	public OrderDto findByOrderId(Integer id) {
 	    return orderMapper.findByOrderId(id);
 	}
