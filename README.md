@@ -31,6 +31,11 @@ docker compose up -d --build
 コンテナの起動が完了したら、ブラウザで以下にアクセスしてください。
 URL: http://localhost:8080
 
+一時停止
+```bash
+docker compose stop
+```
+
 データ等の不整合が発生した場合や、環境を初期化したい場合は以下のコマンドを実行してください。
 ```bash
 docker compose down -v
