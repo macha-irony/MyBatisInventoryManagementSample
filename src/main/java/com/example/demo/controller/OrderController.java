@@ -81,7 +81,11 @@ public class OrderController {
 	//受注伝票の削除
 	@PostMapping("/order/list/delete")	//orderListでdeleteボタンが押下された時
 	public String deleteOrder(Order order) {
-		orderService.deleteOrder(order.getId());
+		// debagリクエストが来ているか確認、結果、処理表示
+	    System.out.println("★DEBUG: 削除リクエストを受信。ID: " + order.getId());
+	    int count = orderService.findByOrderId(order.getId()) != null ? 1 : 0;
+	    System.out.println("★DEBUG: データベースの更新されたなら1: " + count);
+	    orderService.deleteOrder(order.getId());
 		return "redirect:/order/list";
 	}
 	

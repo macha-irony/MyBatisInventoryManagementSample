@@ -9,8 +9,8 @@
 	<!--受注伝票の作成 -->
 	<insert id="insertOrder" useGeneratedKeys="true"
 		keyProperty="id">
-		INSERT INTO orders(product_id, quantity, order_date)
-		VALUES(#{productId}, #{quantity}, #{orderDate})
+		INSERT INTO orders(product_id, quantity, order_date, customer_name, address)
+		VALUES(#{productId}, #{quantity}, #{orderDate}, #{customerName}, #{address})
 	</insert>
 
 	<!--受注伝票の削除 -->

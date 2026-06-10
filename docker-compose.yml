@@ -1,0 +1,23 @@
+services:
+  mybatis-inventory-management-sample-db: # ① PostgreSQLのコンテナ設定
+    image: postgres:16-alpine
+    container_name: mybatis-inventory-management-sample-db
+    environment:
+      POSTGRES_DB: mybatis-inventory-management-sample-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: kunnrenn
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data # データを永続化（コンテナを消しても消えない）
+
+  mybatis-inventory-management-sample-app: # ② Spring Bootのコンテナ設定
+    build: .   # 同じフォルダにあるDockerfileを使ってビルドする
+    container_name: mybatis-inventory-management-sample-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mybatis-inventory-management-sample-db # DBが先に起動するように制御する
+
+volumes:
+  db_data: # 永続化用のボリュームを定義

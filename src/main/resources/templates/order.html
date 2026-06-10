@@ -21,7 +21,7 @@
 			<h2 class="mb-4">📋 受注登録画面</h2>
 
 			<form th:action="@{/order/insertOrder}" th:object="${orderForm}" method="post"
-				onsubmit="return confirm('受注内容を確定してもよろしいですか？');">
+				onsubmit="return confirm('受注伝票を保存してもよろしいですか？');">
 
 				<div class="mb-3">
 					<label for="productId" class="form-label">商品名</label>
@@ -63,7 +63,7 @@
 				<div class="mb-4" id="map" style="height: 300px; width: 100%; margin-top: 10px;"></div>
 
 				<div class="d-grid gap-2">
-					<button type="submit" class="btn btn-primary btn-lg">受注を確定する</button>
+					<button type="submit" class="btn btn-primary btn-lg">受注伝票を登録する</button>
 				</div>
 <!--				<a th:href="@{/download/shipping-label(customerName=${orderForm.customerName}, address=${orderForm.address})}" -->
 <!--				   class="btn btn-success">送り状Excelをダウンロード</a>-->
