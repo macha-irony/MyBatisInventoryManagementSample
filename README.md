@@ -35,3 +35,7 @@ URL: http://localhost:8080
 ```bash
 docker compose down -v
 ```
+
+## ログイン方法
+ユーザー名：admin
+パスワード：12345679
